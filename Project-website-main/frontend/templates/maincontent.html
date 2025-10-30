@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlertMalware - เนื้อหาหลัก</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ✅ โหลด CSS จาก static -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/maincontent.css') }}">
+</head>
+
+<body>
+  <div class="container">
+    <!-- 🔹 Sidebar -->
+    <aside id="sidebar" class="sidebar" aria-label="เมนูด้านข้าง" aria-expanded="false">
+      <nav class="sidebar-menu">
+        <button class="sidebar-item active" data-route="#home" aria-current="page">
+          <i class="icon icon-home"></i>
+          <span class="label">หน้าหลัก</span>
+        </button>
+        <button class="sidebar-item" data-route="#bookmarks">
+          <i class="icon icon-bookmark"></i>
+          <span class="label">บันทึก</span>
+        </button>
+        <button class="sidebar-item" data-route="#chat">
+          <i class="icon icon-chat"></i>
+          <span class="label">สนทนา</span>
+        </button>
+      </nav>
+    </aside>
+
+    <div class="main-content" id="mainContent">
+      <!-- 🔹 Navigation Bar -->
+      <nav class="navbar" role="navigation" aria-label="แถบนำทาง">
+        <div id="nav-left" class="nav-left" role="button" tabindex="0" aria-label="พื้นที่เมนูซ้าย"
+             aria-controls="sidebar" aria-expanded="false">
+          <span id="toggleBtn" class="navbar-toggle" aria-hidden="true">☰</span>
+        </div>
+        <a href="/" class="logo" aria-label="หน้าแรก">🚀 CyberLearn</a>
+        <button id="chatbotBtn" class="chatbot-btn" aria-label="เปิด AI Chatbot">🤖 AI Chatbot</button>
+      </nav>
+
+      <!-- 🔹 เนื้อหาหลัก -->
+      <main class="content-area" id="home" tabindex="-1">
+        <header class="content-header">
+          <h1 class="page-title">หมวดเนื้อหาทั้งหมด</h1>
+          <p class="page-subtitle">แต่ละหมวดหมู่จะมีเนื้อหาที่แตกต่างกัน</p>
+        </header>
+
+        <!-- 🔹 การ์ดจาก DB -->
+        <div class="cards-container" id="cardContainer">
+          {% if lessons and lessons|length > 0 %}
+            {% for item in lessons %}
+              <article class="card">
+                <div class="card-image-wrapper">
+                  {% if item.cover_image %}
+                    <img src="{{ item.cover_image }}" alt="{{ item.title }}" class="card-image" />
+                  {% endif %}
+                </div>
+                <div class="card-content">
+                  <h3 class="card-title">{{ item.title }}</h3>
+                  <p class="card-desc">{{ item.summary or "" }}</p>
+                  <div class="card-actions">
+                    <a href="{{ url_for('frontend.mainmenu', slug=item.slug) }}" class="card-btn">อ่านเพิ่มเติม</a>
+                  </div>
+                </div>
+              </article>
+            {% endfor %}
+          {% else %}
+            <p>📭 ยังไม่มีบทเรียนที่เผยแพร่</p>
+          {% endif %}
+        </div>
+
+        <section class="content-block">
+          <h2 class="page-title">💬 สนทนากับ AI</h2>
+          <p class="muted">เริ่มคุยกับผู้ช่วย AI เพื่อหาคำตอบและเรียนรู้อย่างรวดเร็ว!</p>
+          <button id="openChatFromSection" class="card-btn">🤖 เปิด AI Chatbot</button>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- 🔹 Footer -->
+  <footer class="footer">
+    <p>© 2025 AlertMalware | Developed by Korrakod Inburee</p>
+  </footer>
+
+  <!-- 🔹 Script -->
+  <script src="{{ url_for('static', filename='js/maincontent.js') }}"></script>
+</body>
+</html>

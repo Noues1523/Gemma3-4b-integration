@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }} • CyberLearn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/content.css" />
+</head>
+<body>
+  <main class="container">
+    <a href="/" class="back">← กลับหน้าหลัก</a>
+    <h1>{{ title }}</h1>
+    {% if cover %}<img class="cover" src="{{ cover }}" alt="cover">{% endif %}
+    <article class="lesson-body">{{ body|safe }}</article>
+  </main>
+</body>
+</html>

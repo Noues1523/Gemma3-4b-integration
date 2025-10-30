@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ lesson.title }} - CyberLearn</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ✅ ใช้ CSS แยกไฟล์ -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/read_content.css') }}">
+</head>
+
+<body>
+  <div class="container">
+    <!-- 🔹 Sidebar -->
+    <aside id="sidebar" class="sidebar" aria-label="เมนูด้านข้าง" aria-expanded="false">
+      <nav class="sidebar-menu">
+        <button class="sidebar-item" data-route="/" onclick="window.location.href='/'">
+          <i class="icon icon-home"></i>
+          <span class="label">หน้าหลัก</span>
+        </button>
+        <button class="sidebar-item active" data-route="#lesson">
+          <i class="icon icon-bookmark"></i>
+          <span class="label">บทเรียนนี้</span>
+        </button>
+        <button class="sidebar-item" data-route="#chat">
+          <i class="icon icon-chat"></i>
+          <span class="label">ช่วยเหลือ</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- 🔹 เนื้อหาหลัก -->
+    <div class="main-content" id="mainContent">
+      <!-- 🔸 Navbar -->
+      <nav class="navbar" role="navigation" aria-label="แถบนำทาง">
+        <div id="nav-left" class="nav-left" role="button" tabindex="0" aria-controls="sidebar" aria-expanded="false">
+          <span id="toggleBtn" class="navbar-toggle" aria-hidden="true">☰</span>
+        </div>
+        <a href="/" class="logo" aria-label="หน้าแรก">🚀 CyberLearn</a>
+        <a href="/mainmenu/{{ lesson.parent_slug }}" class="chatbot-btn">
+          🔙 กลับไปยังหัวข้อ: {{ lesson.parent_title }}
+        </a>
+      </nav>
+
+      <!-- 🔸 Breadcrumb -->
+      <div class="breadcrumb">
+        <a href="/">หน้าหลัก</a> /
+        <a href="/mainmenu/{{ lesson.parent_slug }}">{{ lesson.parent_title }}</a> /
+        <span>{{ lesson.title }}</span>
+      </div>
+
+      <!-- 🔸 Content -->
+      <main class="content">
+        <header class="header">
+          <h1 class="title">{{ lesson.title }}</h1>
+          <p class="subtitle">{{ lesson.description or '' }}</p>
+        </header>
+
+        <section class="content-block">
+          {% if lesson.image_url %}
+          <img class="lesson-image" src="{{ lesson.image_url }}" alt="{{ lesson.title }}">
+          {% endif %}
+          <article class="lesson-body">
+            {{ lesson.content | safe }}
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- 🔹 Footer -->
+  <footer class="footer">
+    <p>© 2025 AlertMalware | Developed by Korrakod Inburee</p>
+  </footer>
+
+  <!-- ✅ JS -->
+  <script src="{{ url_for('static', filename='js/read_content.js') }}"></script>
+</body>
+</html>

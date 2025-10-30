@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemma Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+</head>
+<body>
+  <div id="chatbox">
+    <div id="header">Gemma Chatbot</div>
+    <div id="messages"></div>
+    <div id="input-area">
+      <input type="text" id="userInput" placeholder="พิมพ์คำถามของคุณ..." />
+      <button onclick="sendMessage()" id="sendBtn">ส่ง</button>
+    </div>
+  </div>
+
+  <script>
+    const sessionId = crypto.randomUUID();
+    let currentBotMessage = null;
+
+    document.getElementById('userInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const messages = document.getElementById('messages');
+      const sendBtn = document.getElementById('sendBtn');
+      const userMessage = input.value.trim();
+      
+      if (!userMessage) return;
+
+      // Add user message
+      const userDiv = document.createElement('div');
+      userDiv.className = 'message user';
+      userDiv.textContent = userMessage;
+      messages.appendChild(userDiv);
+      
+      input.value = "";
+      sendBtn.disabled = true;
+
+      // Add typing indicator
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing-indicator';
+      typingDiv.innerHTML = '<span></span><span></span><span></span>';
+      messages.appendChild(typingDiv);
+      messages.scrollTop = messages.scrollHeight;
+
+      try {
+        const response = await fetch('/chatbot/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userMessage, session_id: sessionId })
+        });
+
+        // Remove typing indicator
+        typingDiv.remove();
+
+        // Create bot message container
+        currentBotMessage = document.createElement('div');
+        currentBotMessage.className = 'message bot';
+        messages.appendChild(currentBotMessage);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let botText = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n').filter(line => line.startsWith('data:'));
+          
+          for (const line of lines) {
+            const text = line.replace('data: ', '');
+            botText += text;
+            currentBotMessage.textContent = botText;
+            messages.scrollTop = messages.scrollHeight;
+          }
+        }
+      } catch (error) {
+        typingDiv.remove();
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'message bot';
+        errorDiv.textContent = 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
+        messages.appendChild(errorDiv);
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+  </script>
+</body>
+</html>

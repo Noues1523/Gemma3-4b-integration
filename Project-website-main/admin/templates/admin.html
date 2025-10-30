@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+  <meta charset="utf-8">
+  <title>AlertMalware Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Cache Busting -->
+  <link rel="stylesheet"
+    href="{{ url_for('admin.static', filename='css/Bootstrap_root.css') }}?v={{ range(1, 999999) | random }}">
+  <link rel="stylesheet"
+    href="{{ url_for('admin.static', filename='css/bootstrap-icons.css') }}?v={{ range(1, 999999) | random }}">
+  <link rel="stylesheet"
+    href="{{ url_for('admin.static', filename='css/admin.css') }}?v={{ range(1, 999999) | random }}">
+  <link rel="icon" href="{{ url_for('admin.static', filename='favicon.ico') }}">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+</head>
+
+<body>
+  <!-- 🔹 Login Screen -->
+  <div id="login-screen" class="login-container">
+    <div class="login-card">
+      <img class="login-logo"
+        src="{{ url_for('admin.static', filename='assets/image/alertmalware-logo-white.png') }}" alt="logo">
+      <h2>เข้าสู่ระบบผู้ดูแล</h2>
+      <form id="login-form" class="login-form">
+        <input type="text" id="username" placeholder="ชื่อผู้ใช้" required>
+        <input type="password" id="password" placeholder="รหัสผ่าน" required>
+        <button type="submit" class="login-btn">เข้าสู่ระบบ</button>
+        <div id="login-error" class="login-error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+      </form>
+      <div class="login-footer">AlertMalware Admin System</div>
+    </div>
+  </div>
+
+  <!-- 🔹 Admin App -->
+  <div id="admin-app" class="admin-app" style="display:none;">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-head">
+        <img src="{{ url_for('admin.static', filename='assets/image/alertmalware-logo-white.png') }}" alt="logo">
+        <div class="brand">AlertMalware Admin</div>
+      </div>
+
+      <ul class="sidebar-nav" id="nav">
+        <li data-target="dashboard-section" class="active"><i class="bi bi-speedometer2"></i><span
+            class="nav-label">แดชบอร์ด</span></li>
+        <li data-target="content-section"><i class="bi bi-journal-text"></i><span
+            class="nav-label">จัดการเนื้อหา</span></li>
+        <li data-target="sublessons-section"><i class="bi bi-card-list"></i><span
+            class="nav-label">จัดการหัวข้อย่อย</span></li>
+        <li data-target="lessons-section"><i class="bi bi-collection"></i><span
+            class="nav-label">จัดการเนื้อหาอ่าน</span></li>
+        <li data-target="quiz-section"><i class="bi bi-patch-question"></i><span
+            class="nav-label">จัดการแบบทดสอบ</span></li>
+        <li data-target="analytics-section"><i class="bi bi-graph-up"></i><span
+            class="nav-label">สถิติผู้ใช้</span></li>
+        <li data-target="users-section"><i class="bi bi-people"></i><span class="nav-label">ผู้ดูแลระบบ</span></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="ghost-btn"><i class="bi bi-box-arrow-right"></i><span
+            class="nav-label">ออกจากระบบ</span></button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <button id="sidebar-toggle" class="primary-btn"><i class="bi bi-layout-sidebar-inset"></i></button>
+
+      <!-- ✅ Dashboard -->
+      <section id="dashboard-section">
+        <div class="page-header">
+          <h1>ภาพรวมระบบ</h1>
+          <div class="updated-time">อัปเดตล่าสุด: <span id="dash-updated"></span></div>
+        </div>
+        <div class="stats-grid" id="dashboard-cards"></div>
+        <div class="feed-card">
+          <div class="feed-head">Live Activity Feed</div>
+          <div class="feed-body" id="recent-activities"></div>
+        </div>
+      </section>
+
+      <!-- ✅ Content -->
+      <section id="content-section" hidden>
+        <div class="page-header">
+          <h1>จัดการเนื้อหา</h1>
+        </div>
+        <div class="content-layout">
+          <aside class="content-sidebar">
+            <div class="filter-block">
+              <input type="search" id="ct-search" placeholder="ค้นหาเนื้อหา...">
+              <select id="ct-status">
+                <option value="">ทุกสถานะ</option>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+              <button class="primary-btn" id="ct-create"><i class="bi bi-plus-circle"></i> สร้างบทเรียน</button>
+            </div>
+            <div class="list-block" id="ct-list"></div>
+          </aside>
+
+          <div class="content-editor">
+            <div class="editor-header">
+              <input id="ct-title" placeholder="หัวข้อบทความ">
+              <input id="ct-slug" placeholder="slug">
+              <input id="ct-cover" placeholder="รูปปก (URL)">
+              <select id="ct-status-edit">
+                <option>Draft</option>
+                <option>Published</option>
+              </select>
+              <button id="ct-preview" class="ghost-btn">ดูตัวอย่าง</button>
+              <button id="ct-save" class="primary-btn">บันทึก</button>
+            </div>
+
+            <div class="editor-toolbar">
+              <button data-cmd="bold">B</button>
+              <button data-cmd="italic">I</button>
+              <button data-cmd="underline">U</button>
+              <button data-cmd="insertUnorderedList">• List</button>
+              <button data-cmd="insertOrderedList">1. List</button>
+            </div>
+            <div class="editor-surface" id="ct-editor" contenteditable="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ✅ Sub Lessons -->
+      <section id="sublessons-section" hidden>
+        <div class="page-header">
+          <h1>จัดการหัวข้อย่อย (Sub Lessons)</h1>
+        </div>
+        <div class="content-layout">
+          <aside class="content-sidebar">
+            <div class="filter-block">
+              <input type="search" id="sub-search" placeholder="ค้นหาหัวข้อย่อย...">
+              <select id="filter-parent">
+                <option value="">หมวดหัวข้อหลัก</option>
+              </select>
+              <select id="sub-status">
+                <option value="">สถานะ Published / Draft</option>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+              <button class="primary-btn" id="sub-create"><i class="bi bi-plus-circle"></i> สร้างหัวข้อย่อย</button>
+            </div>
+            <div class="list-block" id="sub-list"></div>
+          </aside>
+
+          <div class="content-editor">
+            <div class="editor-header">
+              <select id="sub-parent">
+                <option value="">เลือกหัวข้อหลัก (parent_slug)</option>
+              </select>
+              <input id="sub-title" placeholder="ชื่อหัวข้อย่อย">
+              <input id="sub-slug" placeholder="slug (กรอกเอง)">
+              <input id="sub-image" placeholder="URL รูปภาพ">
+              <select id="sub-status-edit">
+                <option>Published</option>
+                <option>Draft</option>
+              </select>
+              <button id="sub-save" class="primary-btn">บันทึก</button>
+            </div>
+
+            <div class="editor-toolbar">
+              <button data-cmd="bold">B</button>
+              <button data-cmd="italic">I</button>
+              <button data-cmd="underline">U</button>
+              <button data-cmd="insertUnorderedList">• List</button>
+              <button data-cmd="insertOrderedList">1. List</button>
+            </div>
+            <div id="sub-editor" class="editor-surface" contenteditable="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ✅ Lessons Editor -->
+      <section id="lessons-section" hidden>
+        <div class="page-header">
+          <h1>จัดการเนื้อหาอ่าน (Lessons Editor)</h1>
+          <p class="muted">เพิ่ม / ลบ / จัดเรียงลำดับบล็อกเนื้อหา (ข้อความหรือรูปภาพ)</p>
+        </div>
+
+        <div class="content-editor-blocks">
+          <div class="toolbar">
+            <div class="editor-header">
+  <select id="lesson-parent">
+    <option value="">เลือกหัวข้อหลัก (Lesson)</option>
+  </select>
+  <select id="lesson-sub">
+    <option value="">เลือกหัวข้อย่อย (Sub Lesson)</option>
+  </select>
+</div>
+
+            <button id="addTextBlock" class="primary-btn"><i class="bi bi-fonts"></i> เพิ่มข้อความ</button>
+            <button id="addImageBlock" class="secondary-btn"><i class="bi bi-image"></i> เพิ่มรูปภาพ</button>
+            <button id="saveBlocks" class="success-btn"><i class="bi bi-save"></i> บันทึก</button>
+          </div>
+
+          <div id="blockArea" class="block-area"></div>
+        </div>
+      </section>
+
+      <!-- ✅ Quiz -->
+      <section id="quiz-section" hidden>
+        <div class="page-header">
+          <h1>จัดการแบบทดสอบ</h1>
+        </div>
+        <div class="card">Coming soon…</div>
+      </section>
+
+      <!-- ✅ Analytics -->
+      <section id="analytics-section" hidden>
+        <div class="page-header">
+          <h1>สถิติผู้ใช้</h1>
+        </div>
+        <div class="card">Coming soon…</div>
+      </section>
+
+      <!-- ✅ Users -->
+      <section id="users-section" hidden>
+        <div class="page-header">
+          <h1>ผู้ดูแลระบบ</h1>
+        </div>
+        <div class="card">Coming soon…</div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ✅ Block Editor -->
+  <link rel="stylesheet"
+    href="{{ url_for('admin.static', filename='css/lesson_editor.css') }}?v={{ range(1,999999)|random }}">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" defer></script>
+  <script src="{{ url_for('admin.static', filename='js/lesson_editor.js') }}?v={{ range(1,999999)|random }}"
+    defer></script>
+
+  <!-- ✅ Scripts -->
+  <script src="{{ url_for('admin.static', filename='js/admin.js') }}?v={{ range(1,999999)|random }}" defer></script>
+  <script src="{{ url_for('admin.static', filename='js/content.js') }}?v={{ range(1,999999)|random }}" defer></script>
+  <script src="{{ url_for('admin.static', filename='js/sub_lessons.js') }}?v={{ range(1,999999)|random }}"
+    defer></script>
+
+  <!-- ✅ Modal ลบ -->
+  <div id="delete-modal" class="modal" style="display:none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>ยืนยันการลบ</h3>
+      </div>
+      <div class="modal-body">
+        ต้องการลบบทเรียน <strong id="delete-lesson-name"></strong> หรือไม่?
+      </div>
+      <div class="modal-footer">
+        <button id="delete-cancel" class="ghost-btn">ยกเลิก</button>
+        <button id="delete-confirm" class="danger-btn">ลบ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Modal แจ้งผล -->
+  <div id="success-modal" class="modal" style="display:none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">สถานะ</h3>
+      </div>
+      <div class="modal-body">
+        <p id="success-message"></p>
+      </div>
+      <div class="modal-footer">
+        <button id="success-close" class="primary-btn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Event dispatch สำหรับ content.js -->
+  <script>
+    document.addEventListener('click', (e) => {
+      const li = e.target.closest('li[data-target="content-section"]');
+      if (li) {
+        document.dispatchEvent(new Event('content-section-opened'));
+      }
+    });
+  </script>
+</body>
+
+</html>
